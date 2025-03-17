@@ -11,30 +11,27 @@ import org.springframework.stereotype.Service;
 @Service
 public class JwtTokenService {
 
-    private static final String TOKEN_SECRET = "Lock";
+  private static final String TOKEN_SECRET = "Lock";
 
+  public String createToken(Long id) {
+    try {
+      Algorithm algorithm = Algorithm.HMAC256(TOKEN_SECRET);
 
-    public String createToken(Long id)   {
-        try {
-            Algorithm algorithm = Algorithm.HMAC256(TOKEN_SECRET);
+      return JWT.create().withClaim("user_id", id).sign(algorithm);
 
-            return JWT.create()
-                    .withClaim("user_id", id)
-                    .sign(algorithm);
-
-        } catch (JWTCreationException | IllegalArgumentException exception) {
-            exception.printStackTrace();
-        }
-        return null;
+    } catch (JWTCreationException | IllegalArgumentException exception) {
+      exception.printStackTrace();
     }
-    public Long decodeToken(String token) {
-        try {
-            JWTVerifier verifier = JWT.require(Algorithm.HMAC256(TOKEN_SECRET)).build();
-            DecodedJWT decodedJWT = verifier.verify(token);
-            return decodedJWT.getClaim("user_id").asLong();
-        } catch (JWTVerificationException e) {
-            throw new RuntimeException("Invalid or expired token.");
-        }
-    }
+    return null;
+  }
 
+  public Long decodeToken(String token) {
+    try {
+      JWTVerifier verifier = JWT.require(Algorithm.HMAC256(TOKEN_SECRET)).build();
+      DecodedJWT decodedJWT = verifier.verify(token);
+      return decodedJWT.getClaim("user_id").asLong();
+    } catch (JWTVerificationException e) {
+      throw new RuntimeException("Invalid or expired token.");
+    }
+  }
 }

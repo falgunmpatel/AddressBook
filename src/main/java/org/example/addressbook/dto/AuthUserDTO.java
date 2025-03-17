@@ -14,29 +14,26 @@ import lombok.Setter;
 @NoArgsConstructor
 public class AuthUserDTO {
 
+  String firstName;
+  String lastName;
 
-    String firstName;
-    String lastName;
+  @Email(message = "User email not correct")
+  @NotBlank(message = "email required")
+  String email;
 
-    @Email(message = "User email not correct")
-    @NotBlank(message = "email required")
-    String email;
+  @NotBlank(message = "password required")
+  @Pattern(
+      regexp = "^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{6,}$",
+      message = "invalid password")
+  String password;
 
-    @NotBlank(message = "password required")
-    @Pattern(regexp = "^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{6,}$", message = "invalid password")
-    String password;
+  Long id;
 
-
-    Long id;
-
-
-    public AuthUserDTO(String firstName, String lastName, String email, String password) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-        this.password = password;
-        this.id = null;
-    }
-
-
+  public AuthUserDTO(String firstName, String lastName, String email, String password) {
+    this.firstName = firstName;
+    this.lastName = lastName;
+    this.email = email;
+    this.password = password;
+    this.id = null;
+  }
 }

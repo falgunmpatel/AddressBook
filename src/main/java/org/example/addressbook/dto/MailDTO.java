@@ -1,6 +1,5 @@
 package org.example.addressbook.dto;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,9 +10,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class MailDTO {
-    String to;
-    String subject;
-    String body;
-
-
+  String to;
+  String subject;
+  String body;
 }

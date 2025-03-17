@@ -8,13 +8,13 @@ import org.springframework.stereotype.Service;
 @Service
 public interface IAuthInterface {
 
-  String register(AuthUserDTO user) throws Exception;
+  String register(AuthUserDTO user);
 
   String login(LoginDTO user);
 
-  AuthUserDTO forgotPassword(PassDTO pass, String email) throws Exception;
+  AuthUserDTO forgotPassword(PassDTO pass, String email);
 
-  String resetPassword(String email, String currentPass, String newPass) throws Exception;
+  String resetPassword(String email, String currentPass, String newPass);
 
   String clear();
 }

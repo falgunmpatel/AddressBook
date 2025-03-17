@@ -1,9 +1,9 @@
 package org.example.addressbook.services;
 
-import java.util.List;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.example.addressbook.dto.*;
 import org.example.addressbook.entities.AuthUser;
 import org.example.addressbook.interfaces.IAuthInterface;
@@ -11,12 +11,10 @@ import org.example.addressbook.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
 public class AuthenticationService implements IAuthInterface {
-  ObjectMapper obj = new ObjectMapper();
 
   @Autowired UserRepository userRepository;
 
@@ -26,7 +24,7 @@ public class AuthenticationService implements IAuthInterface {
 
   BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
 
-  public String register(AuthUserDTO user) throws Exception {
+  public String register(AuthUserDTO user) {
     try {
       List<AuthUser> l1 = userRepository.findAll().stream().filter(authuser -> user.getEmail().equals(authuser.getEmail())).toList();
 
@@ -42,7 +40,7 @@ public class AuthenticationService implements IAuthInterface {
       newUser.setHashPass(hashPassword);
 
       userRepository.save(newUser);
-      log.info("User saved in database : {}", obj.writeValueAsString(newUser));
+      log.info("User saved in database : {}", getJSON(newUser));
 
       log.info("User saved in database : {}", getJSON(newUser));
 
@@ -86,7 +84,7 @@ public class AuthenticationService implements IAuthInterface {
 
   }
 
-  public AuthUserDTO forgotPassword(PassDTO pass, String email) throws Exception{
+  public AuthUserDTO forgotPassword(PassDTO pass, String email) {
     try {
       AuthUser foundUser = userRepository.findByEmail(email);
 
@@ -99,7 +97,7 @@ public class AuthenticationService implements IAuthInterface {
       foundUser.setPassword(pass.getPassword());
       foundUser.setHashPass(hashPassword);
 
-      log.info("Hashed Password : {} for password : {} saved for user: {}", hashPassword, pass.getPassword(), obj.writeValueAsString(foundUser));
+      log.info("Hashed Password : {} for password : {} saved for user: {}", hashPassword, pass.getPassword(), getJSON(foundUser));
       userRepository.save(foundUser);
 
       emailService.sendEmail(email, "Password Forgot Status", "Your password has been changed!");
@@ -112,8 +110,7 @@ public class AuthenticationService implements IAuthInterface {
     return null;
   }
 
-  public String resetPassword(String email, String currentPass, String newPass) throws Exception {
-
+  public String resetPassword(String email, String currentPass, String newPass) {
     AuthUser foundUser = userRepository.findByEmail(email);
     if (foundUser == null)
       return "user not registered!";
@@ -128,22 +125,17 @@ public class AuthenticationService implements IAuthInterface {
 
     userRepository.save(foundUser);
 
-    log.info("Hashed Password : {} for password : {} saved for user : {}", hashPassword, newPass, obj.writeValueAsString(foundUser));
+    log.info("Hashed Password : {} for password : {} saved for user : {}", hashPassword, newPass, getJSON(foundUser));
     emailService.sendEmail(email, "Password reset status", "Your password is reset successfully");
 
     return "Password reset successfully!";
-
   }
-
 
   public String clear(){
-
     userRepository.deleteAll();
     log.info("all data inside db is deleted");
-
     return "Database cleared";
   }
-
 
   public String getJSON(Object object){
     try {

@@ -11,8 +11,6 @@ import lombok.Setter;
 @Setter
 public class ResponseDTO {
 
-    String message;
-    String status;
-
-
+  String message;
+  String status;
 }
