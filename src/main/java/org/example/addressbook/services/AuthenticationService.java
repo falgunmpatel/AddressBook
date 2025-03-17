@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 public class AuthenticationService implements IAuthInterface {
+  ObjectMapper obj = new ObjectMapper();
 
   @Autowired UserRepository userRepository;
 
@@ -25,11 +26,12 @@ public class AuthenticationService implements IAuthInterface {
 
   BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
 
-  public String register(AuthUserDTO user) {
+  public String register(AuthUserDTO user) throws Exception {
     try {
       List<AuthUser> l1 = userRepository.findAll().stream().filter(authuser -> user.getEmail().equals(authuser.getEmail())).toList();
 
       if (!l1.isEmpty()) {
+        log.error("User already registered with email: {} ", user.getEmail());
         throw new RuntimeException();
       }
 
@@ -40,6 +42,7 @@ public class AuthenticationService implements IAuthInterface {
       newUser.setHashPass(hashPassword);
 
       userRepository.save(newUser);
+      log.info("User saved in database : {}", obj.writeValueAsString(newUser));
 
       log.info("User saved in database : {}", getJSON(newUser));
 
@@ -58,6 +61,7 @@ public class AuthenticationService implements IAuthInterface {
     try {
       List<AuthUser> l1 = userRepository.findAll().stream().filter(authuser -> authuser.getEmail().equals(user.getEmail())).toList();
       if (l1.isEmpty()) {
+        log.error("User not registered with email: {} ", user.getEmail());
         throw new RuntimeException();
       }
       AuthUser foundUser = l1.getFirst();
@@ -74,7 +78,6 @@ public class AuthenticationService implements IAuthInterface {
       userRepository.save(foundUser);
 
       log.info("User logged in with email {}", user.getEmail());
-
       return "user logged in" + "\ntoken : " + token;
     } catch(RuntimeException e){
       log.error("Exception : {}", e.getMessage());
@@ -83,11 +86,12 @@ public class AuthenticationService implements IAuthInterface {
 
   }
 
-  public AuthUserDTO forgotPassword(PassDTO pass, String email){
+  public AuthUserDTO forgotPassword(PassDTO pass, String email) throws Exception{
     try {
       AuthUser foundUser = userRepository.findByEmail(email);
 
       if (foundUser == null) {
+        log.error("user not registered with email: {}", email);
         throw new RuntimeException();
       }
       String hashPassword = bCryptPasswordEncoder.encode(pass.getPassword());
@@ -95,8 +99,7 @@ public class AuthenticationService implements IAuthInterface {
       foundUser.setPassword(pass.getPassword());
       foundUser.setHashPass(hashPassword);
 
-      log.info("Hashed Password : {} for password : {} saved for user: {}", hashPassword, pass.getPassword(),getJSON(foundUser));
-
+      log.info("Hashed Password : {} for password : {} saved for user: {}", hashPassword, pass.getPassword(), obj.writeValueAsString(foundUser));
       userRepository.save(foundUser);
 
       emailService.sendEmail(email, "Password Forgot Status", "Your password has been changed!");
@@ -109,7 +112,7 @@ public class AuthenticationService implements IAuthInterface {
     return null;
   }
 
-  public String resetPassword(String email, String currentPass, String newPass) {
+  public String resetPassword(String email, String currentPass, String newPass) throws Exception {
 
     AuthUser foundUser = userRepository.findByEmail(email);
     if (foundUser == null)
@@ -125,8 +128,7 @@ public class AuthenticationService implements IAuthInterface {
 
     userRepository.save(foundUser);
 
-    log.info("Hashed Password : {} for password : {} saved for user : {}", hashPassword, newPass, getJSON(foundUser));
-
+    log.info("Hashed Password : {} for password : {} saved for user : {}", hashPassword, newPass, obj.writeValueAsString(foundUser));
     emailService.sendEmail(email, "Password reset status", "Your password is reset successfully");
 
     return "Password reset successfully!";

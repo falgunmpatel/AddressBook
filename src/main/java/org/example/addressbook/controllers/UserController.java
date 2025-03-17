@@ -2,9 +2,9 @@ package org.example.addressbook.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.validation.Valid;
-import org.example.employeepayrollapp.dto.*;
-import org.example.employeepayrollapp.interfaces.IAuthInterface;
-import org.example.employeepayrollapp.services.EmailService;
+import org.example.addressbook.dto.*;
+import org.example.addressbook.interfaces.IAuthInterface;
+import org.example.addressbook.services.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.*;
@@ -23,37 +23,27 @@ public class UserController {
   IAuthInterface iAuthInterface;
 
   @PostMapping(path = "/register")
-  public String register(@Valid @RequestBody AuthUserDTO user) {
-
-    log.info("Employee tried to register with body: {}", getJSON(user));
-
+  public String register(@Valid @RequestBody AuthUserDTO user) throws Exception{
+    log.info("Employee tried to register with body: {}", obj.writeValueAsString(user));
     return iAuthInterface.register(user);
   }
 
   @PostMapping(path = "/login")
-  public String login(@Valid @RequestBody LoginDTO user) {
-
-    log.info("Employee tried to login with body: {}", getJSON(user));
-
+  public String login(@Valid @RequestBody LoginDTO user) throws Exception {
+    log.info("Employee tried to login with body: {}", obj.writeValueAsString(user));
     return iAuthInterface.login(user);
   }
 
   @PostMapping(path = "/sendMail")
-  public String sendMail(@Valid @RequestBody MailDTO message) {
-
-    log.info("Employee tried to send email with body: {}", getJSON(message));
-
+  public String sendMail(@Valid @RequestBody MailDTO message) throws Exception {
+    log.info("Employee tried to send email with body: {}", obj.writeValueAsString(message));
     emailService.sendEmail(message.getTo(), message.getSubject(), message.getBody());
-
     return "Mail sent";
   }
 
   @PutMapping("/forgotPassword/{email}")
-  public AuthUserDTO forgotPassword(
-      @Valid @RequestBody PassDTO pass, @Valid @PathVariable String email) {
-
-    log.info("Employee applied for forgot password with body: {}", getJSON(pass));
-
+  public AuthUserDTO forgotPassword(@Valid @RequestBody PassDTO pass, @Valid @PathVariable String email) throws Exception{
+    log.info("Employee applied for forgot password with body: {}", obj.writeValueAsString(pass));
     return iAuthInterface.forgotPassword(pass, email);
   }
 
@@ -62,9 +52,7 @@ public class UserController {
       @Valid @PathVariable String email,
       @Valid @RequestParam String currentPass,
       @Valid @RequestParam String newPass) {
-
     log.info("Employee applied for forgot password with email: {}", email);
-
     return iAuthInterface.resetPassword(email, currentPass, newPass);
   }
 
