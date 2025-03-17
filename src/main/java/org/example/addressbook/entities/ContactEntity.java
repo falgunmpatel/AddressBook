@@ -22,10 +22,11 @@ public class ContactEntity {
   @GeneratedValue(strategy = GenerationType.AUTO)
   Long id;
 
-  public ContactEntity(String name, String email, Long phoneNumber, String address) {
+  public ContactEntity(String name, String email, Long phoneNumber, String address, long id) {
     this.name = name;
     this.email = email;
     this.phoneNumber = phoneNumber;
     this.address = address;
+    this.id = id;
   }
 }
