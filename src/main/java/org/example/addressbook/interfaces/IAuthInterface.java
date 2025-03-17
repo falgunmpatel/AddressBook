@@ -1,5 +1,6 @@
 package org.example.addressbook.interfaces;
 
+import jakarta.servlet.http.HttpServletResponse;
 import org.example.addressbook.dto.AuthUserDTO;
 import org.example.addressbook.dto.LoginDTO;
 import org.example.addressbook.dto.PassDTO;
@@ -10,7 +11,7 @@ public interface IAuthInterface {
 
   String register(AuthUserDTO user);
 
-  String login(LoginDTO user);
+  public String login(LoginDTO user, HttpServletResponse response);
 
   AuthUserDTO forgotPassword(PassDTO pass, String email);
 

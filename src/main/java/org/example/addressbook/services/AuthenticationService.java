@@ -11,6 +11,11 @@ import org.example.addressbook.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 
 @Service
 @Slf4j
@@ -21,6 +26,8 @@ public class AuthenticationService implements IAuthInterface {
   @Autowired EmailService emailService;
 
   @Autowired JwtTokenService jwtTokenService;
+
+  @Autowired RedisTokenService redisTokenService;
 
   BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
 
@@ -55,7 +62,7 @@ public class AuthenticationService implements IAuthInterface {
   }
 
 
-  public String login(LoginDTO user){
+  public String login(LoginDTO user, HttpServletResponse response){
     try {
       List<AuthUser> l1 = userRepository.findAll().stream().filter(authuser -> authuser.getEmail().equals(user.getEmail())).toList();
       if (l1.isEmpty()) {
@@ -70,6 +77,18 @@ public class AuthenticationService implements IAuthInterface {
       }
 
       String token = jwtTokenService.createToken(foundUser.getId());
+
+      ResponseCookie resCookie = ResponseCookie.from("jwt", token)
+              .httpOnly(true)
+              .secure(false)
+              .path("/")
+              .maxAge(3600)
+              .sameSite("Strict")
+              .build();
+
+      response.addHeader(HttpHeaders.SET_COOKIE, resCookie.toString());
+
+      redisTokenService.saveToken(foundUser.getId().toString(), token);
 
       foundUser.setToken(token);
 

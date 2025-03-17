@@ -2,6 +2,7 @@ package org.example.addressbook.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.example.addressbook.dto.*;
@@ -29,9 +30,9 @@ public class UserController {
   }
 
   @PostMapping(path = "/login")
-  public String login(@Valid @RequestBody LoginDTO user) throws Exception {
+  public String login(@Valid @RequestBody LoginDTO user, HttpServletResponse response) throws Exception {
     log.info("Employee tried to login with body: {}", obj.writeValueAsString(user));
-    return iAuthInterface.login(user);
+    return iAuthInterface.login(user, response);
   }
 
   @PostMapping(path = "/sendMail")
