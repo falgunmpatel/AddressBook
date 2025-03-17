@@ -22,6 +22,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -40,8 +41,6 @@ public class ContactServiceTest {
     ContactRepository contactRepository;
 
     MockHttpServletRequest request = new MockHttpServletRequest();
-
-    Long id = -1L;
 
     @BeforeEach //setup
     public void registerAndLoginDummyUser(){
@@ -63,7 +62,7 @@ public class ContactServiceTest {
 
         iAuthInterface.login(userLogin, response);
 
-        Cookie dummyCookie = new Cookie("jwt", response.getCookie("jwt").getValue());
+        Cookie dummyCookie = new Cookie("jwt", Objects.requireNonNull(response.getCookie("jwt")).getValue());
 
         request.setCookies(dummyCookie);
 
@@ -86,7 +85,7 @@ public class ContactServiceTest {
         assertNotNull(resDto);
 
         //finding the contact in db
-        ContactEntity foundContact = contactRepository.findByEmail("kushagrasharma@gmail.com");
+        ContactEntity foundContact = contactRepository.findByEmail("user01@gmail.com");
 
         assertNotNull(foundContact);
 
@@ -105,7 +104,7 @@ public class ContactServiceTest {
         assertNotNull(resDto);
 
         //action
-        ContactDTO getDto = iContactService.get(resDto.getId(), request);
+        ContactDTO getDto = iContactService.get(resDto.getUserId(), request);
 
         //assert
         assertEquals(getJSON(resDto), getJSON(getDto));
@@ -119,13 +118,11 @@ public class ContactServiceTest {
         List<ContactDTO> l1 = new ArrayList<>();
 
         l1.add(new ContactDTO("User01", "user01@gmail.com", 7684754995L, "Agra"));
-        l1.add(new ContactDTO("User02", "user02@gmail.com", 982749202L, "Mathura"));
+        l1.add(new ContactDTO("User02", "user02@gmail.com", 982749202L, "Mumbai"));
         l1.add(new ContactDTO("User03", "user03@gmail.com", 982749202L, "Delhi"));
 
-        //adding the contacts to test db and setting the response dtos in the original list
-        for (int i=0 ; i<l1.size() ; i++) {
-            l1.set(i,iContactService.create(l1.get(i), request));
-        }
+        //adding the contacts to test db and setting the response DTOs in the original list
+        l1.replaceAll(user -> iContactService.create(user, request));
 
         List<ContactDTO> resList = iContactService.getAll(request);
 
@@ -140,16 +137,16 @@ public class ContactServiceTest {
     public void editTest(){
 
         //creating a contact
-        ContactDTO newContact = new ContactDTO("Kushagra Sharma", "kushagrasharma@gmail.com", 982749202L, "Agra");
+        ContactDTO newContact = new ContactDTO("User01", "user01@gmail.com", 982749202L, "Agra");
 
         ContactDTO resDto1 = iContactService.create(newContact, request);
 
         assertNotNull(resDto1);
 
         //edit the previous contact wit new one
-        ContactDTO editContact = new ContactDTO("Naman Agarwal", "naman@gmail.com", 982755502L, "Agra", resDto1.getId());
+        ContactDTO editContact = new ContactDTO("user02", "user02@gmail.com", 982755502L, "Agra", resDto1.getUserId());
 
-        ContactDTO resDto2 = iContactService.edit(editContact, resDto1.getId(), request);
+        ContactDTO resDto2 = iContactService.edit(editContact, resDto1.getUserId(), request);
 
         //assert the changes made with intended changes
         assertEquals(getJSON(editContact), getJSON(resDto2));
@@ -160,14 +157,14 @@ public class ContactServiceTest {
     public void deleteTest(){
 
         //creating a contact
-        ContactDTO newContact = new ContactDTO("Kushagra Sharma", "kushagrasharma@gmail.com", 982749202L, "Agra");
+        ContactDTO newContact = new ContactDTO("User01", "user01@gmail.com", 982749202L, "Agra");
 
         ContactDTO resDto1 = iContactService.create(newContact, request);
 
         assertNotNull(resDto1);
 
         //delete the contact created
-        String res = iContactService.delete(resDto1.getId(), request);
+        String res = iContactService.delete(resDto1.getUserId(), request);
 
         //match the res with expected response
         assertEquals("contact deleted", res, "response did not match");

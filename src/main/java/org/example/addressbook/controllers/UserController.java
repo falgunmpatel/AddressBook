@@ -2,6 +2,7 @@ package org.example.addressbook.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +20,7 @@ public class UserController {
 
   @Autowired EmailService emailService;
 
-  @Qualifier("IAuthInterface")
+  @Qualifier("authenticationService")
   @Autowired
   IAuthInterface iAuthInterface;
 
@@ -52,9 +53,17 @@ public class UserController {
   public String resetPassword(
       @Valid @PathVariable String email,
       @Valid @RequestParam String currentPass,
-      @Valid @RequestParam String newPass) throws Exception {
+      @Valid @RequestParam String newPass) {
     log.info("Employee applied for forgot password with email: {}", email);
     return iAuthInterface.resetPassword(email, currentPass, newPass);
+  }
+
+  @PostMapping(path = "/Logout")
+  public String logout(HttpServletRequest request, HttpServletResponse response){
+
+    log.info("User trie to logout");
+
+    return iAuthInterface.logout(request, response);
   }
 
   @GetMapping("/clear")
@@ -62,18 +71,5 @@ public class UserController {
 
     log.info("Database clear request is made");
     return iAuthInterface.clear();
-  }
-
-  public String getJSON(Object object) {
-    try {
-      ObjectMapper obj = new ObjectMapper();
-      return obj.writeValueAsString(object);
-    } catch (JsonProcessingException e) {
-      log.error(
-          "Reason : {} Exception : {}",
-          "Conversion error from Java Object to JSON",
-          e.getMessage());
-    }
-    return null;
   }
 }

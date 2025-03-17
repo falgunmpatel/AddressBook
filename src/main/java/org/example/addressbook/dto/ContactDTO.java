@@ -18,7 +18,7 @@ public class ContactDTO {
   String email;
   Long phoneNumber;
   String address;
-  Long id;
+  Long userId;
 
   public ContactDTO(String name, String email, Long phoneNumber, String address) {
     this.name = name;

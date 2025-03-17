@@ -20,13 +20,13 @@ public class ContactEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
-  Long id;
+  Long userId;
 
-  public ContactEntity(String name, String email, Long phoneNumber, String address, long id) {
+  public ContactEntity(String name, String email, Long phoneNumber, String address, long userId) {
     this.name = name;
     this.email = email;
     this.phoneNumber = phoneNumber;
     this.address = address;
-    this.id = id;
+    this.userId = userId;
   }
 }

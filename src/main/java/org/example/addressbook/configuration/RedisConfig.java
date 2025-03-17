@@ -1,6 +1,6 @@
 package org.example.addressbook.configuration;
 
-import com.example.Address.Book.dto.ContactDTO;
+import org.example.addressbook.dto.ContactDTO;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;

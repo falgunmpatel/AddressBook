@@ -49,14 +49,14 @@ public class ContactService implements IContactService {
                 return cacheContacts.opsForValue().get("Contact" + userId + ":" + id);
             }
 
-            List<ContactEntity> contacts = contactRepository.findByUserId(userId).stream().filter(entity -> entity.getId().equals(id)).toList();
+            List<ContactEntity> contacts = contactRepository.findByUserId(userId).stream().filter(entity -> entity.getUserId().equals(id)).toList();
 
             if(contacts.isEmpty())
                 throw new RuntimeException();
 
             ContactEntity foundContact = contacts.getFirst();
 
-            ContactDTO resDto = new ContactDTO(foundContact.getName(), foundContact.getEmail(), foundContact.getPhoneNumber(), foundContact.getAddress(), foundContact.getId());
+            ContactDTO resDto = new ContactDTO(foundContact.getName(), foundContact.getEmail(), foundContact.getPhoneNumber(), foundContact.getAddress(), foundContact.getUserId());
 
             log.info("Contact DTO send for id: {} is : {}", id, getJSON(resDto));
 
@@ -87,7 +87,7 @@ public class ContactService implements IContactService {
 
             log.info("Contact saved in db: {}", getJSON(newUser));
 
-            ContactDTO resDto = new ContactDTO(newUser.getName(), newUser.getEmail(), newUser.getPhoneNumber(), newUser.getAddress(), newUser.getId());
+            ContactDTO resDto = new ContactDTO(newUser.getName(), newUser.getEmail(), newUser.getPhoneNumber(), newUser.getAddress(), newUser.getUserId());
 
             log.info("Contact DTO sent: {}", getJSON(resDto));
 
@@ -119,7 +119,7 @@ public class ContactService implements IContactService {
             return cacheContactList.opsForValue().get("Contact" + userId);
         }
 
-        List<ContactDTO> result = contactRepository.findByUserId(userId).stream().map(entity -> new ContactDTO(entity.getName(), entity.getEmail(), entity.getPhoneNumber(), entity.getAddress(), entity.getId())).collect(Collectors.toList());
+        List<ContactDTO> result = contactRepository.findByUserId(userId).stream().map(entity -> new ContactDTO(entity.getName(), entity.getEmail(), entity.getPhoneNumber(), entity.getAddress(), entity.getUserId())).collect(Collectors.toList());
 
         //save list in cache memory of redis
         cacheContactList.opsForValue().set("Contact"+userId, result);
@@ -131,7 +131,7 @@ public class ContactService implements IContactService {
 
         Long userId = getUserId(request);
 
-        List<ContactEntity> contacts = contactRepository.findByUserId(userId).stream().filter(entity -> entity.getId().equals(id)).toList();
+        List<ContactEntity> contacts = contactRepository.findByUserId(userId).stream().filter(entity -> entity.getUserId().equals(id)).toList();
 
         if(contacts.isEmpty())
             throw new RuntimeException("No contact with given id found");
@@ -147,7 +147,7 @@ public class ContactService implements IContactService {
 
         log.info("Contact saved after editing in db is : {}", getJSON(foundContact));
 
-        ContactDTO resDto = new ContactDTO(foundContact.getName(), foundContact.getEmail(),foundContact.getPhoneNumber(), foundContact.getAddress(), foundContact.getId());
+        ContactDTO resDto = new ContactDTO(foundContact.getName(), foundContact.getEmail(),foundContact.getPhoneNumber(), foundContact.getAddress(), foundContact.getUserId());
 
         //reset the contacts list and the contact cache(to freshly search the updated contact next time from db)
         cacheContacts.delete("Contact"+userId+":"+id);
@@ -160,7 +160,7 @@ public class ContactService implements IContactService {
 
         Long userId = getUserId(request);
 
-        List<ContactEntity> contacts = contactRepository.findByUserId(userId).stream().filter(entity -> entity.getId().equals(id)).toList();
+        List<ContactEntity> contacts = contactRepository.findByUserId(userId).stream().filter(entity -> entity.getUserId().equals(id)).toList();
 
         if(contacts.isEmpty())
             throw new RuntimeException("No contact with given id found");

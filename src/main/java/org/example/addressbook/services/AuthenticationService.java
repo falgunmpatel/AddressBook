@@ -3,6 +3,9 @@ package org.example.addressbook.services;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
+
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.example.addressbook.dto.*;
 import org.example.addressbook.entities.AuthUser;
@@ -149,6 +152,37 @@ public class AuthenticationService implements IAuthInterface {
     messageProducer.sendMessage(customMessage);
 
     return "Password reset successfully!";
+  }
+
+  public String logout(HttpServletRequest request, HttpServletResponse response){
+
+    Cookie foundCookie = null;
+
+    if(request.getCookies() ==  null)
+      return "user not logged in";
+
+    for(Cookie c : request.getCookies()){
+      if(c.getName().equals("jwt")){
+        foundCookie = c;
+        break;
+      }
+    }
+    if(foundCookie == null)
+      return "user not logged in";
+
+    ResponseCookie expiredCookie = ResponseCookie.from("jwt", "")
+            .httpOnly(true)
+            .secure(false)
+            .path("/")
+            .maxAge(0)
+            .sameSite("Lax")
+            .build();
+
+    response.addHeader(HttpHeaders.SET_COOKIE, expiredCookie.toString());
+
+    redisTokenService.deleteToken(jwtTokenService.decodeToken(foundCookie.getValue()).toString());
+
+    return "You are logged out";
   }
 
   public String clear(){

@@ -26,5 +26,4 @@ public class RedisTokenService {
     public void deleteToken(String userId) {
         redisTemplate.delete("JWT:" + userId);
     }
-
 }

@@ -23,26 +23,28 @@ public class MessageConsumer {
         String email = data[1];
         String firstName = data[2];
 
-        if (messageType.equals("REGISTER")) {
+        switch (messageType) {
+            case "REGISTER" -> {
 
-            String body = "Hi " + firstName + ",\n" + "You have been successfully registered";
+                String body = "Hi " + firstName + ",\n" + "You have been successfully registered";
 
-            emailService.sendEmail(email, "Registration Successful", body);
+                emailService.sendEmail(email, "Registration Successful", body);
 
-        }
-        else if(messageType.equals("FORGOT")){
+            }
+            case "FORGOT" -> {
 
-            String body = "Hi " + firstName + ",\n" + "Your password has been changed";
+                String body = "Hi " + firstName + ",\n" + "Your password has been changed";
 
-            emailService.sendEmail(email, "Forgot Password", body);
+                emailService.sendEmail(email, "Forgot Password", body);
 
-        }
-        else if(messageType.equals("RESET")){
+            }
+            case "RESET" -> {
 
-            String body = "Hi " + firstName + ",\n" + "Your password has been reset";
+                String body = "Hi " + firstName + ",\n" + "Your password has been reset";
 
-            emailService.sendEmail(email, "Reset Password", body);
+                emailService.sendEmail(email, "Reset Password", body);
 
+            }
         }
     }
 }
