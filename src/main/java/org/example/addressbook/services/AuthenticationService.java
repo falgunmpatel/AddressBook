@@ -11,8 +11,6 @@ import org.example.addressbook.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
@@ -23,7 +21,7 @@ public class AuthenticationService implements IAuthInterface {
 
   @Autowired UserRepository userRepository;
 
-  @Autowired EmailService emailService;
+  @Autowired MessageProducer messageProducer;
 
   @Autowired JwtTokenService jwtTokenService;
 
@@ -51,7 +49,8 @@ public class AuthenticationService implements IAuthInterface {
 
       log.info("User saved in database : {}", getJSON(newUser));
 
-      emailService.sendEmail(user.getEmail(), "Your Account is Ready!", "UserName : " + user.getFirstName() + " " + user.getLastName() + "\nEmail : " + user.getEmail() + "\nYou are registered!\nBest Regards");
+      String customMessage = "REGISTER|"+user.getEmail()+"|"+user.getFirstName();
+      messageProducer.sendMessage(customMessage);
 
       return "user registered";
     }
@@ -119,9 +118,10 @@ public class AuthenticationService implements IAuthInterface {
       log.info("Hashed Password : {} for password : {} saved for user: {}", hashPassword, pass.getPassword(), getJSON(foundUser));
       userRepository.save(foundUser);
 
-      emailService.sendEmail(email, "Password Forgot Status", "Your password has been changed!");
+      String customMessage = "FORGOT|"+foundUser.getEmail()+"|"+foundUser.getFirstName();
+      messageProducer.sendMessage(customMessage);
 
-        return new AuthUserDTO(foundUser.getFirstName(), foundUser.getLastName(), foundUser.getEmail(), foundUser.getPassword(), foundUser.getId());
+      return new AuthUserDTO(foundUser.getFirstName(), foundUser.getLastName(), foundUser.getEmail(), foundUser.getPassword(), foundUser.getId());
     }
     catch(RuntimeException e){
       log.error("user not registered with email: {} Exception : {}", email, e.getMessage());
@@ -145,7 +145,8 @@ public class AuthenticationService implements IAuthInterface {
     userRepository.save(foundUser);
 
     log.info("Hashed Password : {} for password : {} saved for user : {}", hashPassword, newPass, getJSON(foundUser));
-    emailService.sendEmail(email, "Password reset status", "Your password is reset successfully");
+    String customMessage = "RESET|"+foundUser.getEmail()+"|"+foundUser.getFirstName();
+    messageProducer.sendMessage(customMessage);
 
     return "Password reset successfully!";
   }
